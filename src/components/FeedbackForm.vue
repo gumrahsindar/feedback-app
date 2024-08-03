@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
 import { MAX_CHARS } from "../lib/constants"
+import { useFeedbackItems } from "../composables/useFeedbackItems"
+import { TFeedbackItems } from "../types"
 
 const feedback = ref("")
 const inputRef = ref<HTMLTextAreaElement | null>(null)
+
+const { postFeedbackItem } = useFeedbackItems()
 
 const remainingCharacters = computed(() => MAX_CHARS - feedback.value.length)
 
@@ -15,6 +19,20 @@ const onInput = (event: Event) => {
   }
 }
 
+const handleSubmit = async () => {
+  const newItem: TFeedbackItems = {
+    id: Date.now(),
+    upvoteCount: 0,
+    badgeLetter: feedback.value[0].toUpperCase(),
+    company: "New Company",
+    text: feedback.value,
+    daysAgo: 0,
+  }
+  await postFeedbackItem(newItem)
+  feedback.value = ""
+  inputRef.value?.focus()
+}
+
 onMounted(() => {
   if (inputRef.value) {
     inputRef.value.focus()
@@ -23,7 +41,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <form class="form">
+  <form @submit.prevent="handleSubmit" class="form">
     <textarea
       v-model="feedback"
       @input="onInput"
