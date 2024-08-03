@@ -1,33 +1,49 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted, ref } from "vue"
+import { TFeedbackItems } from "../types"
+import FeedbackItem from "./FeedbackItem.vue"
+import Spinner from "./Spinner.vue"
+
+const feedbackItems = ref<TFeedbackItems[]>([])
+const isLoading = ref(false)
+const errorMessage = ref("")
+
+const fetchFeedbackItems = async () => {
+  isLoading.value = true
+  try {
+    const response = await fetch(
+      "https://bytegrad.com/course-assets/projects/corpcomment/api/feedbacks"
+    )
+    if (!response.ok) {
+      throw new Error("Failed to fetch feedback items")
+    }
+    const items = await response.json()
+    feedbackItems.value = items.feedbacks
+  } catch (error) {
+    if (error instanceof Error) {
+      errorMessage.value = error.message
+    } else {
+      errorMessage.value = "An unknown error occurred"
+    }
+  }
+  isLoading.value = false
+}
+
+onMounted(() => {
+  fetchFeedbackItems()
+})
+</script>
 
 <template>
   <ol class="feedback-list">
-    <li class="feedback">
-      <button>
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 15 15"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M4 9H11L7.5 4.5L4 9Z" fill="currentColor"></path>
-        </svg>
-        <span>593</span>
-      </button>
-      <div>
-        <p>B</p>
-      </div>
-      <div>
-        <p>GumboBox</p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam
-          alias provident voluptatem aut, exercitationem neque?
-        </p>
-      </div>
-
-      <p>4d</p>
-    </li>
+    <Spinner v-if="isLoading" />
+    <p v-else-if="errorMessage">{{ errorMessage }}</p>
+    <FeedbackItem
+      v-else
+      v-for="item of feedbackItems"
+      :key="item.id"
+      :item="item"
+    />
   </ol>
 </template>
 
