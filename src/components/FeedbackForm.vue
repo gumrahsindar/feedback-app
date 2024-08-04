@@ -19,12 +19,29 @@ const onInput = (event: Event) => {
   }
 }
 
+// get badge letter as first letter after #
+const getBadgeLetter = computed(() => {
+  const hashtagIndex = feedback.value.indexOf("#")
+  if (hashtagIndex === -1) {
+    return ""
+  }
+  const badgeLetter = feedback.value[hashtagIndex + 1]
+  return badgeLetter.toUpperCase()
+})
+
+// get company name as string after #
+const getCompanyName = computed(() => {
+  return getBadgeLetter.value
+    ? feedback.value.slice(feedback.value.indexOf("#") + 1).trim()
+    : ""
+})
+
 const handleSubmit = async () => {
   const newItem: TFeedbackItems = {
     id: Date.now(),
     upvoteCount: 0,
-    badgeLetter: feedback.value[0].toUpperCase(),
-    company: "New Company",
+    badgeLetter: getBadgeLetter.value,
+    company: getCompanyName.value,
     text: feedback.value,
     daysAgo: 0,
   }
