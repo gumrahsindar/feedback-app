@@ -4,7 +4,7 @@ import FeedbackItem from "./FeedbackItem.vue"
 import Spinner from "./Spinner.vue"
 import { useFeedbackItems } from "../composables/useFeedbackItems"
 
-const { isLoading, feedbackItems, fetchFeedbackItems, errorMessage } =
+const { isLoading, filteredFeedbackItems, fetchFeedbackItems, errorMessage } =
   useFeedbackItems()
 
 onMounted(() => {
@@ -18,7 +18,7 @@ onMounted(() => {
     <p v-else-if="errorMessage">{{ errorMessage }}</p>
     <FeedbackItem
       v-else
-      v-for="item of feedbackItems"
+      v-for="item of filteredFeedbackItems"
       :key="item.id"
       :item="item"
     />

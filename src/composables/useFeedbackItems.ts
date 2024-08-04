@@ -1,4 +1,4 @@
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { TFeedbackItems } from "../types"
 
 interface FeedbackResponse {
@@ -9,6 +9,26 @@ interface FeedbackResponse {
 const feedbackItems = ref<TFeedbackItems[]>([])
 const isLoading = ref(false)
 const errorMessage = ref("")
+const selectedCompany = ref("")
+
+const filteredFeedbackItems = computed(() => {
+  return selectedCompany.value
+    ? feedbackItems.value.filter(
+        (item) => item.company === selectedCompany.value
+      )
+    : feedbackItems.value
+})
+
+const handleSelectCompany = (company: string) => {
+  company === "All"
+    ? (selectedCompany.value = "")
+    : (selectedCompany.value = company)
+}
+
+const hashtags = computed(() => {
+  const allHashtags = feedbackItems.value.flatMap((item) => item.company)
+  return Array.from(new Set(allHashtags))
+})
 
 const fetchFeedbackItems = async () => {
   isLoading.value = true
@@ -60,9 +80,12 @@ const postFeedbackItem = async (feedbackItem: TFeedbackItems) => {
 export const useFeedbackItems = () => {
   return {
     feedbackItems,
+    filteredFeedbackItems,
     isLoading,
     errorMessage,
     fetchFeedbackItems,
     postFeedbackItem,
+    hashtags,
+    handleSelectCompany,
   }
 }
