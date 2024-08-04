@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import { defineProps, ref } from "vue"
 import { TFeedbackItems } from "../types"
 
-defineProps<{
+const props = defineProps<{
   item: TFeedbackItems
 }>()
+
+const isUpvoted = ref(false)
+
+const upvoteCount = ref(props.item.upvoteCount)
+
+const handleUpvote = () => {
+  upvoteCount.value++
+  isUpvoted.value = true
+}
 </script>
 
 <template>
   <li class="feedback">
-    <button>
+    <button @click="handleUpvote" :disabled="isUpvoted" aria-label="Upvote">
       <svg
         width="15"
         height="15"
@@ -18,7 +28,7 @@ defineProps<{
       >
         <path d="M4 9H11L7.5 4.5L4 9Z" fill="currentColor"></path>
       </svg>
-      <span>{{ item.upvoteCount }}</span>
+      <span>{{ upvoteCount }}</span>
     </button>
     <div>
       <p>{{ item.badgeLetter }}</p>
@@ -30,7 +40,8 @@ defineProps<{
       </p>
     </div>
 
-    <p>{{ item.daysAgo }}d</p>
+    <p v-if="item.daysAgo === 0">NEW</p>
+    <p v-else>{{ item.daysAgo }}d</p>
   </li>
 </template>
 
